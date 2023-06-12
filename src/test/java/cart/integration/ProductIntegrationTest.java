@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import cart.application.ProductService;
+import cart.domain.Product;
 import cart.dto.PagedDataResponse;
 import cart.dto.PaginationInfoDto;
 import cart.dto.product.ProductRequest;
@@ -69,7 +70,7 @@ public class ProductIntegrationTest extends IntegrationTest {
         // given
         int unitSize = 5;
         int page = 2;
-        final List<ProductResponse> allProducts = productService.getAllProducts();
+        final List<Product> allProducts = productService.getAllProducts();
         int expectedTotalPage = 4;
 
         // when

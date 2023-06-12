@@ -19,7 +19,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import cart.application.ProductService;
-import cart.dto.product.ProductResponse;
 import cart.repository.dao.MemberDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,7 @@ class ProductApiControllerTest {
 
     @Test
     public void getProductById() throws Exception {
-        willReturn(ProductResponse.from(자몽_허니_블랙티_5700원_ID_2)).given(productService).getProductById(2L);
+        willReturn(자몽_허니_블랙티_5700원_ID_2).given(productService).getProductById(2L);
 
         this.mockMvc.perform(get("/products/{id}", 2L))
                 .andExpect(status().isOk())

@@ -1,9 +1,7 @@
 package cart.application;
 
 import cart.domain.Product;
-import cart.dto.PagedDataResponse;
 import cart.dto.product.ProductRequest;
-import cart.dto.product.ProductResponse;
 import cart.repository.ProductRepository;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -23,16 +21,15 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> getAllProducts() {
+    public List<Product> getAllProducts() {
         final Pageable allProductsSortedByIdDesc = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("id").descending());
         final Page<Product> products = productRepository.findAll(allProductsSortedByIdDesc);
-        return ProductResponse.from(products.getContent());
+        return products.getContent();
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse getProductById(Long productId) {
-        Product product = productRepository.findById(productId);
-        return ProductResponse.from(product);
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId);
     }
 
     @Transactional
@@ -53,11 +50,8 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public PagedDataResponse<ProductResponse> getPagedProducts(final int unitSize, final int page) {
+    public Page<Product> getPagedProducts(final int unitSize, final int page) {
         final Pageable sortedByIdDesc = PageRequest.of(page - 1, unitSize, Sort.by("id").descending());
-        final Page<Product> pagedProducts = productRepository.findAll(sortedByIdDesc);
-
-        final Page<ProductResponse> response = pagedProducts.map(product -> ProductResponse.from(product));
-        return PagedDataResponse.from(response);
+        return productRepository.findAll(sortedByIdDesc);
     }
 }
