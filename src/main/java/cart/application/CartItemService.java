@@ -3,15 +3,12 @@ package cart.application;
 import cart.domain.Member;
 import cart.domain.Product;
 import cart.domain.cart.CartItem;
-import cart.dto.PagedDataResponse;
 import cart.dto.cart.CartItemQuantityUpdateRequest;
 import cart.dto.cart.CartItemRequest;
-import cart.dto.cart.CartItemResponse;
 import cart.repository.CartItemRepository;
 import cart.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,9 +27,8 @@ public class CartItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<CartItemResponse> findByMember(Member member) {
-        List<CartItem> cartItems = cartItemRepository.findByMemberId(member.getId());
-        return cartItems.stream().map(CartItemResponse::from).collect(Collectors.toList());
+    public List<CartItem> findByMember(Member member) {
+        return cartItemRepository.findByMemberId(member.getId());
     }
 
     @Transactional
@@ -79,23 +75,17 @@ public class CartItemService {
     }
 
     @Transactional(readOnly = true)
-    public CartItemResponse findByCartItemId(final Member member, final Long id) {
+    public CartItem findByCartItemId(final Member member, final Long id) {
         CartItem cartItem = cartItemRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("id에 해당하는 장바구니 상품이 존재하지 않습니다"));
         cartItem.checkOwner(member);
 
-        return CartItemResponse.from(cartItem);
+        return cartItem;
     }
 
     @Transactional(readOnly = true)
-    public PagedDataResponse<CartItemResponse> getPagedCartItems(final Member member, final int unitSize, final int page) {
+    public Page<CartItem> getPagedCartItems(final Member member, final int unitSize, final int page) {
         final Pageable sortByIdDesc = PageRequest.of(page - 1, unitSize, Sort.by("id").descending());
-        final Page<CartItem> pagedCartItems = cartItemRepository.getPagedCartItemsByMember(
-                sortByIdDesc,
-                member.getId()
-        );
-
-        final Page<CartItemResponse> response = pagedCartItems.map(cartItem -> CartItemResponse.from(cartItem));
-        return PagedDataResponse.from(response);
+        return cartItemRepository.getPagedCartItemsByMember(sortByIdDesc, member.getId());
     }
 }

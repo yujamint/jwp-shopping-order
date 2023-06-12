@@ -2,11 +2,13 @@ package cart.ui;
 
 import cart.application.CartItemService;
 import cart.domain.Member;
+import cart.domain.cart.CartItem;
 import cart.dto.PagedDataResponse;
 import cart.dto.cart.CartItemQuantityUpdateRequest;
 import cart.dto.cart.CartItemRequest;
 import cart.dto.cart.CartItemResponse;
 import java.net.URI;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,13 +34,15 @@ public class CartItemApiController {
     public ResponseEntity<PagedDataResponse<CartItemResponse>> showPagedCartItems(Member member,
                                                                 @RequestParam("unit-size") int unitSize,
                                                                 @RequestParam int page) {
-        PagedDataResponse<CartItemResponse> pagedCartItems = cartItemService.getPagedCartItems(member, unitSize, page);
-        return ResponseEntity.ok(pagedCartItems);
+        final Page<CartItem> pagedCartItems = cartItemService.getPagedCartItems(member, unitSize, page);
+        final Page<CartItemResponse> response = pagedCartItems.map(cartItem -> CartItemResponse.from(cartItem));
+        return ResponseEntity.ok(PagedDataResponse.from(response));
     }
 
     @GetMapping("/{cartItemId}")
     public ResponseEntity<CartItemResponse> showCartItemById(Member member, @PathVariable Long cartItemId) {
-        return ResponseEntity.ok(cartItemService.findByCartItemId(member, cartItemId));
+        final CartItem cartItem = cartItemService.findByCartItemId(member, cartItemId);
+        return ResponseEntity.ok(CartItemResponse.from(cartItem));
     }
 
     @PostMapping

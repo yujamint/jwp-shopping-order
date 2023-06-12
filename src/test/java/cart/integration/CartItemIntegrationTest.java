@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import cart.application.CartItemService;
 import cart.domain.Member;
+import cart.domain.cart.CartItem;
 import cart.dto.PagedDataResponse;
 import cart.dto.cart.CartItemQuantityUpdateRequest;
 import cart.dto.cart.CartItemRequest;
@@ -116,14 +117,14 @@ public class CartItemIntegrationTest extends IntegrationTest {
         ExtractableResponse<Response> response = requestUpdateCartItemQuantity(member, cartItemId, 10);
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
 
-        final List<CartItemResponse> cartItemsResponse = cartItemService.findByMember(member);
+        final List<CartItem> cartItemsResponse = cartItemService.findByMember(member);
 
-        Optional<CartItemResponse> selectedCartItemResponse = cartItemsResponse.stream()
-                .filter(cartItemResponse -> cartItemResponse.getId().equals(cartItemId))
+        Optional<CartItem> selectedCartItem = cartItemsResponse.stream()
+                .filter(cartItem -> cartItem.getId().equals(cartItemId))
                 .findFirst();
 
-        assertThat(selectedCartItemResponse.isPresent()).isTrue();
-        assertThat(selectedCartItemResponse.get().getQuantity()).isEqualTo(10);
+        assertThat(selectedCartItem).isPresent();
+        assertThat(selectedCartItem.get().getQuantity()).isEqualTo(10);
     }
 
     @DisplayName("장바구니에 담긴 아이템의 수량을 0으로 변경하면, 장바구니에서 아이템이 삭제된다.")
@@ -134,13 +135,13 @@ public class CartItemIntegrationTest extends IntegrationTest {
         ExtractableResponse<Response> response = requestUpdateCartItemQuantity(member, cartItemId, 0);
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
 
-        final List<CartItemResponse> cartItemsResponse = cartItemService.findByMember(member);
+        final List<CartItem> cartItems = cartItemService.findByMember(member);
 
-        Optional<CartItemResponse> selectedCartItemResponse = cartItemsResponse.stream()
+        Optional<CartItem> selectedCartItem = cartItems.stream()
                 .filter(cartItemResponse -> cartItemResponse.getId().equals(cartItemId))
                 .findFirst();
 
-        assertThat(selectedCartItemResponse.isPresent()).isFalse();
+        assertThat(selectedCartItem).isEmpty();
     }
 
     @DisplayName("다른 사용자가 담은 장바구니 아이템의 수량을 변경하려 하면 실패한다.")
@@ -162,13 +163,13 @@ public class CartItemIntegrationTest extends IntegrationTest {
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
 
-        final List<CartItemResponse> cartItemsResponse = cartItemService.findByMember(member);
+        final List<CartItem> cartItems = cartItemService.findByMember(member);
 
-        Optional<CartItemResponse> selectedCartItemResponse = cartItemsResponse.stream()
+        Optional<CartItem> selectedCartItem = cartItems.stream()
                 .filter(cartItemResponse -> cartItemResponse.getId().equals(cartItemId))
                 .findFirst();
 
-        assertThat(selectedCartItemResponse.isPresent()).isFalse();
+        assertThat(selectedCartItem).isEmpty();
     }
 
     private ExtractableResponse<Response> requestGetCartItemById(final Member member, final Long id) {
