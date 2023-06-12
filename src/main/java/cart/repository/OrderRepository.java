@@ -55,7 +55,7 @@ public class OrderRepository {
 
         final List<ProductEntity> findProducts = productDao.getProductByIds(productIds);
 
-        final OrderItems orderItems = OrderItems.of(findOrderItems, findProducts, member);
+        final OrderItems orderItems = OrderItems.of(findOrderItems, findProducts);
         final DiscountPolicy discountPolicy = FixedDiscountPolicy.from(orderItems.sumOfPrice());
 
         return orderEntity.toDomain(member, orderItems, discountPolicy);

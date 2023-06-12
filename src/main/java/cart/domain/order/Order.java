@@ -16,24 +16,13 @@ public class Order {
         this(null, member, orderItems, discountPolicy, null);
     }
 
-    public Order(final Long id, final Member member, final OrderItems orderItems, final DiscountPolicy discountPolicy) {
-        this(id, member, orderItems, discountPolicy, null);
-    }
-
     public Order(final Long id, final Member member, final OrderItems orderItems, final DiscountPolicy discountPolicy,
                  final LocalDateTime createdAt) {
-        validateMember(member, orderItems);
         this.id = id;
         this.member = member;
         this.orderItems = orderItems;
         this.discountPolicy = discountPolicy;
         this.createdAt = createdAt;
-    }
-
-    private void validateMember(final Member member, final OrderItems orderItems) {
-        if (!member.equals(orderItems.getMember())) {
-            throw new IllegalArgumentException("주문자가 주문하지 않은 상품이 포함되어 있습니다");
-        }
     }
 
     public Price getOriginalPrice() {

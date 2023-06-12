@@ -1,7 +1,6 @@
 package cart.domain.order;
 
 import cart.domain.cart.CartItems;
-import cart.domain.Member;
 import cart.domain.Product;
 import cart.entity.OrderItemEntity;
 import cart.entity.ProductEntity;
@@ -12,12 +11,10 @@ import java.util.stream.Collectors;
 public class OrderItems {
 
     private final List<OrderItem> orderItems;
-    private final Member member;
 
-    private OrderItems(final List<OrderItem> orderItems, final Member member) {
+    private OrderItems(final List<OrderItem> orderItems) {
         validateItemsLength(orderItems);
         this.orderItems = orderItems;
-        this.member = member;
     }
 
     private void validateItemsLength(final List<OrderItem> orderItems) {
@@ -31,12 +28,11 @@ public class OrderItems {
                 .map(cartItem -> OrderItem.from(cartItem))
                 .collect(Collectors.toUnmodifiableList());
 
-        return new OrderItems(orderItems, cartItems.getMember());
+        return new OrderItems(orderItems);
     }
 
     public static OrderItems of(final List<OrderItemEntity> orderItemEntities,
-                                final List<ProductEntity> products,
-                                final Member member) {
+                                final List<ProductEntity> products) {
 
         validateSameSize(orderItemEntities, products);
         List<OrderItem> items = new ArrayList<>();
@@ -45,7 +41,7 @@ public class OrderItems {
             final OrderItem orderItem = OrderItem.of(orderItemEntities.get(index), product);
             items.add(orderItem);
         }
-        return new OrderItems(items, member);
+        return new OrderItems(items);
     }
 
     private static void validateSameSize(final List<OrderItemEntity> orderItemEntities,
@@ -66,7 +62,4 @@ public class OrderItems {
         return orderItems;
     }
 
-    public Member getMember() {
-        return member;
-    }
 }
