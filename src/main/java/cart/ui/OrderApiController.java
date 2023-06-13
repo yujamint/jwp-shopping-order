@@ -2,12 +2,15 @@ package cart.ui;
 
 import cart.application.OrderService;
 import cart.domain.Member;
-import cart.dto.order.discountpolicy.DiscountPolicyResponse;
+import cart.domain.order.Order;
 import cart.dto.order.OrderCreateRequest;
 import cart.dto.order.OrderSelectResponse;
 import cart.dto.order.OrderSimpleInfoResponse;
+import cart.dto.order.discountpolicy.DiscountPolicyResponse;
+import cart.dto.order.discountpolicy.FixedDiscountPolicyResponse;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,22 +38,27 @@ public class OrderApiController {
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderSelectResponse> showOrderById(Member member, @PathVariable Long orderId) {
-        OrderSelectResponse orderSelectResponse = orderService.getOrder(member, orderId);
-
-        return ResponseEntity.ok(orderSelectResponse);
+        final Order order = orderService.getOrder(member, orderId);
+        final OrderSelectResponse response = OrderSelectResponse.from(order);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<OrderSimpleInfoResponse>> showOrders(Member member) {
-        List<OrderSimpleInfoResponse> ordersSelectResponse = orderService.getAllOrders(member);
+        final List<Order> orders = orderService.getAllOrders(member);
+        final List<OrderSimpleInfoResponse> response = orders.stream()
+                .map(order -> OrderSimpleInfoResponse.from(order))
+                .collect(Collectors.toUnmodifiableList());
 
-        return ResponseEntity.ok(ordersSelectResponse);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/discount-policies")
     public ResponseEntity<DiscountPolicyResponse> showAllDiscountPolicies(Member member) {
-        DiscountPolicyResponse discountPolicyResponse = orderService.getAllDiscountPolicies();
+        final List<FixedDiscountPolicyResponse> response = orderService.getFixedDiscountPolicies().stream()
+                .map(policy -> FixedDiscountPolicyResponse.from(policy))
+                .collect(Collectors.toUnmodifiableList());
 
-        return ResponseEntity.ok(discountPolicyResponse);
+        return ResponseEntity.ok(new DiscountPolicyResponse(response));
     }
 }
